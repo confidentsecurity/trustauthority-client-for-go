@@ -18,6 +18,7 @@ import (
 	"github.com/golang-jwt/jwt/v4"
 	"github.com/google/uuid"
 	"github.com/intel/trustauthority-client/go-connector"
+	"github.com/intel/trustauthority-client/go-nvgpu"
 	"github.com/intel/trustauthority-client/go-tdx"
 	"github.com/intel/trustauthority-client/go-tpm"
 	"github.com/intel/trustauthority-client/tdx-cli/constants"
@@ -63,6 +64,7 @@ func init() {
 	tokenCmd.Flags().Bool(constants.NoEventLogOptions.Name, false, constants.NoEventLogOptions.Description)
 	tokenCmd.Flags().Bool(constants.WithTdxOptions.Name, false, constants.WithTdxOptions.Description)
 	tokenCmd.Flags().Bool(constants.WithTpmOptions.Name, false, constants.WithTpmOptions.Description)
+	tokenCmd.Flags().Bool(constants.WithNvGpuOptions.Name, false, constants.WithNvGpuOptions.Description)
 	tokenCmd.Flags().Bool(constants.NoVerifierNonceOptions.Name, false, constants.NoVerifierNonceOptions.Description)
 	tokenCmd.Flags().Bool(constants.WithImaLogsOptions.Name, false, constants.WithImaLogsOptions.Description)
 	tokenCmd.Flags().Bool(constants.WithEventLogsOptions.Name, false, constants.WithEventLogsOptions.Description)
@@ -169,6 +171,12 @@ func getToken(cmd *cobra.Command) error {
 	}
 
 	withTpm, err := cmd.Flags().GetBool(constants.WithTpmOptions.Name)
+	if err != nil {
+		return err
+	}
+
+	withNvGpu, err := cmd.Flags().GetBool(constants.WithNvGpuOptions.Name)
+
 	if err != nil {
 		return err
 	}
@@ -291,6 +299,11 @@ func getToken(cmd *cobra.Command) error {
 		}
 
 		builderOptions = append(builderOptions, connector.WithEvidenceAdapter(tpmAdapter))
+	}
+
+	if withNvGpu {
+		gpuAdapter := nvgpu.NewCompositeEvidenceAdapter()
+		builderOptions = append(builderOptions, connector.WithEvidenceAdapter(gpuAdapter))
 	}
 
 	evidenceBuilder, err := connector.NewEvidenceBuilder(builderOptions...)
