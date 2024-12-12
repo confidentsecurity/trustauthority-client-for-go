@@ -27,8 +27,8 @@ func (adapter *GPUAdapter) GetEvidenceIdentifier() string {
 }
 
 func (adapter *GPUAdapter) CollectEvidence(nonce []byte) (GPUEvidence, error) {
-	gpuAttester := gonvtrust.NewGpuAttester(true)
-	evidenceList, err := gpuAttester.GetRemoteEvidence(123123)
+	gpuAttester := gonvtrust.NewGpuAttester(false)
+	evidenceList, err := gpuAttester.GetRemoteEvidence(0)
 	if err != nil {
 		return GPUEvidence{}, fmt.Errorf("failed to get remote evidence: %v", err)
 	}
