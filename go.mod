@@ -16,13 +16,13 @@ require (
 	github.com/lestrrat-go/jwx/v2 v2.0.21
 	github.com/pkg/errors v0.9.1
 	github.com/sirupsen/logrus v1.9.3
-	github.com/stretchr/testify v1.9.0
+	github.com/stretchr/testify v1.10.0
 )
 
 require (
 	github.com/NVIDIA/go-nvml v0.12.4-0 // indirect
 	github.com/canonical/go-sp800.108-kdf v0.0.0-20210314145419-a3359f2d21b9 // indirect
-	github.com/confidentsecurity/go-nvtrust v0.0.0-20241212201622-cbc466a02688 // indirect
+	github.com/confidentsecurity/go-nvtrust v0.0.0-20241220190045-4216c435c7a7 // indirect
 	github.com/davecgh/go-spew v1.1.1 // indirect
 	github.com/decred/dcrd/dcrec/secp256k1/v4 v4.2.0 // indirect
 	github.com/hashicorp/go-cleanhttp v0.5.2 // indirect
@@ -41,3 +41,5 @@ require (
 	gopkg.in/tomb.v2 v2.0.0-20161208151619-d5d1b5820637 // indirect
 	gopkg.in/yaml.v3 v3.0.1 // indirect
 )
+
+replace github.com/NVIDIA/go-nvml => github.com/yoihito/go-nvml v0.0.0-20241220151549-c893db3ceb12

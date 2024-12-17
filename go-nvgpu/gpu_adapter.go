@@ -1,6 +1,9 @@
 package nvgpu
 
 import (
+	"crypto/sha256"
+	"encoding/base64"
+	"encoding/hex"
 	"fmt"
 
 	"github.com/confidentsecurity/go-nvtrust/pkg/gonvtrust"
@@ -8,10 +11,9 @@ import (
 )
 
 type GPUEvidence struct {
-	Arch          string                  `json:"arch"`
 	Evidence      string                  `json:"evidence"`
 	Certificate   string                  `json:"certificate"`
-	Nonce         []byte                  `json:"gpu_nonce"`
+	Nonce         string                  `json:"gpu_nonce"`
 	VerifierNonce connector.VerifierNonce `json:"verifier_nonce"`
 }
 
@@ -22,13 +24,15 @@ func NewCompositeEvidenceAdapter() connector.CompositeEvidenceAdapter {
 	return &GPUAdapter{}
 }
 
-func (adapter *GPUAdapter) GetEvidenceIdentifier() string {
+func (*GPUAdapter) GetEvidenceIdentifier() string {
 	return "nvgpu"
 }
 
-func (adapter *GPUAdapter) CollectEvidence(nonce []byte) (GPUEvidence, error) {
+func (*GPUAdapter) CollectEvidence(nonce []byte) (GPUEvidence, error) {
+	hash := sha256.Sum256(nonce)
+	// pass in false to signify we are not in test mode
 	gpuAttester := gonvtrust.NewGpuAttester(false)
-	evidenceList, err := gpuAttester.GetRemoteEvidence(0)
+	evidenceList, err := gpuAttester.GetRemoteEvidence(hash[:])
 	if err != nil {
 		return GPUEvidence{}, fmt.Errorf("failed to get remote evidence: %v", err)
 	}
@@ -39,16 +43,22 @@ func (adapter *GPUAdapter) CollectEvidence(nonce []byte) (GPUEvidence, error) {
 	// only single gpu attestation is supported for now
 	rawEvidence := evidenceList[0]
 
+	evidenceBytes, err := base64.StdEncoding.DecodeString(rawEvidence.Evidence)
+	if err != nil {
+		return GPUEvidence{}, fmt.Errorf("failed to decode evidence: %v", err)
+	}
+	hexEvidence := hex.EncodeToString(evidenceBytes)
+	rawEvidence.Evidence = base64.StdEncoding.EncodeToString([]byte(hexEvidence))
+
+	hexNonce := fmt.Sprintf("%x", hash)
 	return GPUEvidence{
-		Nonce:       nonce,
-		Arch:        "HOPPER",
+		Nonce:       hexNonce,
 		Evidence:    rawEvidence.Evidence,
 		Certificate: rawEvidence.Certificate,
 	}, nil
-
 }
 
-func (adapter *GPUAdapter) GetEvidence(verifierNonce *connector.VerifierNonce, userData []byte) (interface{}, error) {
+func (adapter *GPUAdapter) GetEvidence(verifierNonce *connector.VerifierNonce, userData []byte) (any, error) {
 	var nonce []byte
 	if verifierNonce != nil {
 		nonce = append(verifierNonce.Val, verifierNonce.Iat[:]...)
@@ -62,5 +72,4 @@ func (adapter *GPUAdapter) GetEvidence(verifierNonce *connector.VerifierNonce, u
 	evidence.VerifierNonce = *verifierNonce
 
 	return &evidence, nil
-
 }

@@ -203,9 +203,9 @@ func getToken(cmd *cobra.Command) error {
 
 	// backward compatibility cli options: if the user did not specify "--tdx" or "--tpm" options,
 	// include TDX evidence by default
-	if !withTdx && !withTpm {
-		withTdx = true
-	}
+	// if !withTdx && !withTpm {
+	// 	withTdx = true
+	// }
 
 	var userDataBytes []byte
 	if userData != "" {
