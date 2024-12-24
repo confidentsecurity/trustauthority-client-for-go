@@ -8,6 +8,7 @@ go 1.22.10
 
 require (
 	github.com/canonical/go-tpm2 v1.7.6
+	github.com/confidentsecurity/go-nvtrust v0.0.0-20241224140234-5e268a86f2a9
 	github.com/goccy/go-json v0.10.2
 	github.com/golang-jwt/jwt/v4 v4.5.0
 	github.com/google/go-configfs-tsm v0.2.2
@@ -22,7 +23,6 @@ require (
 require (
 	github.com/NVIDIA/go-nvml v0.12.4-0 // indirect
 	github.com/canonical/go-sp800.108-kdf v0.0.0-20210314145419-a3359f2d21b9 // indirect
-	github.com/confidentsecurity/go-nvtrust v0.0.0-20241220190045-4216c435c7a7 // indirect
 	github.com/davecgh/go-spew v1.1.1 // indirect
 	github.com/decred/dcrd/dcrec/secp256k1/v4 v4.2.0 // indirect
 	github.com/hashicorp/go-cleanhttp v0.5.2 // indirect
@@ -42,4 +42,4 @@ require (
 	gopkg.in/yaml.v3 v3.0.1 // indirect
 )
 
-replace github.com/NVIDIA/go-nvml => github.com/yoihito/go-nvml v0.0.0-20241220151549-c893db3ceb12
+replace github.com/NVIDIA/go-nvml => github.com/yoihito/go-nvml v0.0.0-20241224135837-9ffaf6351622
