@@ -18,21 +18,45 @@ type GPUEvidence struct {
 }
 
 type GPUAdapter struct {
+	gpuAttester GPUAttester
 }
 
-func NewCompositeEvidenceAdapter() connector.CompositeEvidenceAdapter {
-	return &GPUAdapter{}
+type GPUAttester interface {
+	GetRemoteEvidence([]byte) ([]gonvtrust.RemoteEvidence, error)
+}
+
+type GPUAdapterOptions struct {
+	GpuAttester GPUAttester
+}
+
+type Option func(*GPUAdapterOptions)
+
+func WithGpuAttester(gpuAttester GPUAttester) Option {
+	return func(options *GPUAdapterOptions) {
+		options.GpuAttester = gpuAttester
+	}
+}
+
+func NewCompositeEvidenceAdapter(opts ...Option) connector.CompositeEvidenceAdapter {
+	options := &GPUAdapterOptions{
+		GpuAttester: gonvtrust.NewGpuAttester(false),
+	}
+	for _, opt := range opts {
+		opt(options)
+	}
+	return &GPUAdapter{
+		gpuAttester: options.GpuAttester,
+	}
 }
 
 func (*GPUAdapter) GetEvidenceIdentifier() string {
 	return "nvgpu"
 }
 
-func (*GPUAdapter) CollectEvidence(nonce []byte) (GPUEvidence, error) {
+func (g *GPUAdapter) CollectEvidence(nonce []byte) (GPUEvidence, error) {
 	hash := sha256.Sum256(nonce)
 	// pass in false to signify we are not in test mode
-	gpuAttester := gonvtrust.NewGpuAttester(false)
-	evidenceList, err := gpuAttester.GetRemoteEvidence(hash[:])
+	evidenceList, err := g.gpuAttester.GetRemoteEvidence(hash[:])
 	if err != nil {
 		return GPUEvidence{}, fmt.Errorf("failed to get remote evidence: %v", err)
 	}
