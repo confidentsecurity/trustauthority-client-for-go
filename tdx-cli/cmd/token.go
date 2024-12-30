@@ -196,6 +196,12 @@ func getToken(cmd *cobra.Command) error {
 		return err
 	}
 
+	// backward compatibility cli options: if the user did not specify "--tdx, "--tpm" or "--nvgpu" options,
+	// include TDX evidence by default
+	if !withTdx && !withTpm && !withNvGpu {
+		withTdx = true
+	}
+
 	eventLogsPath, err := cmd.Flags().GetString(constants.EventLogsPathOptions.Name)
 	if err != nil {
 		return err
